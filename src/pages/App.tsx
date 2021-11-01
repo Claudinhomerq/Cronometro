@@ -1,22 +1,47 @@
-import logo from "./logo.svg";
+import React, { useState } from "react";
+import Cronometro from "../components/Cronometro";
+import Formulario from "../components/Formulario";
+import Lista from "../components/Lista";
+import { ITarefa } from "../types/tarefa";
+import style from "./App.module.scss";
 
 function App() {
+  const [tarefas, setTarefas] = useState<ITarefa[]>([]);
+  const [selecionado, setSelecionado] = useState<ITarefa>();
+
+  function selecionaTarefa(tarefaSelecionada: ITarefa) {
+    setSelecionado(tarefaSelecionada);
+    setTarefas((tarefasAnteriores) =>
+      tarefasAnteriores.map((Tarefa) => ({
+        ...Tarefa,
+        selecionado: Tarefa.id === tarefaSelecionada.id,
+      }))
+    );
+  }
+
+  function finalizarTarefa() {
+    if (selecionado) {
+      setSelecionado(undefined);
+      setTarefas((tarefasAnteriores) =>
+        tarefasAnteriores.map((tarefas) => {
+          if (tarefas.id === selecionado.id) {
+            return {
+              ...tarefas,
+              selecionado: false,
+              completado: true,
+            };
+          }
+          return tarefas;
+        })
+      );
+    }
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className={style.AppStyle}>
+      <Formulario setTarefas={setTarefas} />
+      <Lista tarefas={tarefas} selecionaTarefa={selecionaTarefa} />
+      <Cronometro selecionado={selecionado} finalizarTarefa={finalizarTarefa} />
     </div>
   );
 }
